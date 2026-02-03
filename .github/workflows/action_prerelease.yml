@@ -16,8 +16,8 @@ jobs:
     uses: ./.github/workflows/service_docker-build-and-publish.yml
     with:
       docker-tags: |
-        shpcr.io/selfhostpro/demo-app:prerelease
-        shpcr.io/selfhostpro/demo-app:prerelease-${{ github.ref_name }}
+        shpcr.io/selfhostpro/demo:prerelease
+        shpcr.io/selfhostpro/demo:prerelease-${{ github.ref_name }}
       dockerfile: "./Dockerfile.php"
       environment: prerelease
       version: "${{ github.ref_name }}"

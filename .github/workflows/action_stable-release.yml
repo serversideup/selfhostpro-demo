@@ -32,9 +32,9 @@ jobs:
     uses: ./.github/workflows/service_docker-build-and-publish.yml
     with:
       docker-tags: |
-        shpcr.io/selfhostpro/demo-app:latest
-        shpcr.io/selfhostpro/demo-app:${{ needs.prepare.outputs.version }}
-        shpcr.io/selfhostpro/demo-app:${{ needs.prepare.outputs.major }}
+        shpcr.io/selfhostpro/demo:latest
+        shpcr.io/selfhostpro/demo:${{ needs.prepare.outputs.version }}
+        shpcr.io/selfhostpro/demo:${{ needs.prepare.outputs.major }}
       dockerfile: "./Dockerfile.php"
       environment: production
       version: "${{ needs.prepare.outputs.version }}"
