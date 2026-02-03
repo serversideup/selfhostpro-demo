@@ -1,0 +1,41 @@
+# Stable Release - Builds when you publish a GitHub release
+# Use case: Production releases for paying customers
+# Tags produced: latest, {version}, {major} (e.g., latest, 1.2.0, 1)
+name: Stable Release
+
+on:
+  release:
+    types: [released]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+      major: ${{ steps.set-version.outputs.major }}
+    steps:
+      - name: Parse version from tag
+        id: set-version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"            # Strip 'v' prefix: v1.2.0 → 1.2.0
+          MAJOR="${VERSION%%.*}"            # Extract major: 1.2.0 → 1
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "major=${MAJOR}" >> $GITHUB_OUTPUT
+
+  build:
+    needs: prepare
+    uses: ./.github/workflows/service_docker-build-and-publish.yml
+    with:
+      docker-tags: |
+        shpcr.io/selfhostpro/demo-app:latest
+        shpcr.io/selfhostpro/demo-app:${{ needs.prepare.outputs.version }}
+        shpcr.io/selfhostpro/demo-app:${{ needs.prepare.outputs.major }}
+      dockerfile: "./Dockerfile.php"
+      environment: production
+      version: "${{ needs.prepare.outputs.version }}"
+    secrets: inherit

@@ -1,0 +1,116 @@
+# Reusable Docker Build & Publish Workflow
+# This centralizes all build logic - trigger workflows just pass tags and settings.
+# Handles: dependency caching, asset compilation, versioning, and registry push.
+name: Docker Build & Publish
+
+on:
+  workflow_call:
+    inputs:
+      docker-tags:
+        required: true
+        type: string
+        description: "Comma or newline separated list of Docker tags"
+      dockerfile:
+        type: string
+        default: "./Dockerfile"
+      target:
+        type: string
+        default: ""
+      platforms:
+        type: string
+        default: "linux/amd64"
+      environment:
+        type: string
+        required: true
+        description: "Deployment environment (edge, prerelease, production)"
+      version:
+        type: string
+        required: false
+        description: "Version string to embed in the build"
+
+env:
+  DOCKER_COMPOSE_CMD: docker compose -f docker-compose.yml -f docker-compose.ci.yml
+
+jobs:
+  docker-publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────────────────────────
+      # PHP Dependencies (with caching)
+      # ─────────────────────────────────────────────────────────────
+      - name: Restore Composer cache
+        id: composer-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: vendor/
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: |
+          $DOCKER_COMPOSE_CMD run php \
+            composer install --optimize-autoloader --no-interaction --no-progress --no-ansi
+
+      - name: Save Composer cache
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: vendor/
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      # ─────────────────────────────────────────────────────────────
+      # Node Dependencies & Asset Build (with caching)
+      # ─────────────────────────────────────────────────────────────
+      - name: Detect package manager
+        id: pkg-manager
+        run: |
+          if [ -f yarn.lock ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+            echo "lockfile=yarn.lock" >> $GITHUB_OUTPUT
+          else
+            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "lockfile=package-lock.json" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Restore node_modules cache
+        id: node-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules/
+          key: ${{ runner.os }}-node-${{ hashFiles(steps.pkg-manager.outputs.lockfile) }}
+
+      - name: Install Node dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: $DOCKER_COMPOSE_CMD run node ${{ steps.pkg-manager.outputs.manager }} install
+
+      - name: Build frontend assets
+        run: $DOCKER_COMPOSE_CMD run node ${{ steps.pkg-manager.outputs.manager }} run build
+
+      - name: Save node_modules cache
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: node_modules/
+          key: ${{ runner.os }}-node-${{ hashFiles(steps.pkg-manager.outputs.lockfile) }}
+
+      # ─────────────────────────────────────────────────────────────
+      # Version Embedding & Docker Build
+      # ─────────────────────────────────────────────────────────────
+      - name: Embed version in composer.json
+        if: inputs.version != ''
+        run: |
+          jq '.version = "${{ inputs.version }}"' composer.json > composer.json.tmp
+          mv composer.json.tmp composer.json
+
+      - name: Build and push to Self-Host Pro registry
+        uses: serversideup/github-action-docker-build@v6
+        with:
+          tags: ${{ inputs.docker-tags }}
+          dockerfile: ${{ inputs.dockerfile }}
+          registry: "shpcr.io"
+          registry-username: ${{ secrets.SHPCR_USERNAME }}
+          registry-password: ${{ secrets.SHPCR_PASSWORD }}
+          platforms: ${{ inputs.platforms }}

@@ -1,0 +1,9 @@
+.vault-password
+.github
+Dockerfile
+docker-*.yml
+.gitlab-ci.yml
+.spin*
+.infrastructure
+!.infrastructure/**/local-ca.pem
+!.infrastructure/conf/frankenphp/caddyfile-global.d/*

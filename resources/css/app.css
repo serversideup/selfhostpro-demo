@@ -1,0 +1,65 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Untitled UI Gray Primitives (matching marketing site) */
+    --color-cool-25: #FAFAFA;
+    --color-cool-50: #F5F5F6;
+    --color-cool-100: #F0F1F1;
+    --color-cool-200: #ECECED;
+    --color-cool-300: #CECFD2;
+    --color-cool-400: #94969C;
+    --color-cool-500: #85888E;
+    --color-cool-600: #61646C;
+    --color-cool-700: #333741;
+    --color-cool-800: #1F242F;
+    --color-cool-900: #161B26;
+    --color-cool-950: #0C111D;
+
+    /* Self-Host Pro brand colors - terracotta palette */
+    --color-orange-50: #FBF4EE;
+    --color-orange-100: #F6E5D6;
+    --color-orange-200: #ECC8AC;
+    --color-orange-300: #E0A578;
+    --color-orange-400: #D5844E;
+    --color-orange-500: #CA6C33;
+    --color-orange-600: #B85928;
+    --color-orange-700: #994524;
+    --color-orange-800: #7C3923;
+    --color-orange-900: #653120;
+    --color-orange-950: #37180E;
+
+    /* Hero sections (always dark) */
+    --color-hero-dark: #101828;
+    --color-text-on-dark: #fffbf5;
+}
+
+/* Light mode (default) */
+:root,
+html.light {
+    --ui-bg: #F9F7F6;
+    --ui-bg-elevated: #FFFFFF;
+    --ui-text: #1D2939;
+    --ui-text-muted: #475467;
+    --ui-text-dimmed: #667085;
+    --ui-border: #ECECED;
+    --ui-border-accented: #E4E7EC;
+}
+
+/* Dark mode - class-based for toggle */
+html.dark {
+    --ui-bg: #0C111D;
+    --ui-bg-elevated: #1F242F;
+    --ui-text: #F0F1F1;
+    --ui-text-muted: #CECFD2;
+    --ui-text-dimmed: #94969C;
+    --ui-border: #333741;
+    --ui-border-accented: #1F242F;
+}
