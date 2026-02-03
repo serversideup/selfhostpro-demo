@@ -1,5 +1,6 @@
 .vault-password
 .github
+!github/workflows/**
 Dockerfile
 docker-*.yml
 .gitlab-ci.yml
