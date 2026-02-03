@@ -33,7 +33,7 @@ This project uses [Spin](https://serversideup.net/open-source/spin/) for local D
 ### Prerequisites
 
 - Docker & Docker Compose
-- [Spin](https://serversideup.net/open-source/spin/) (`brew install serversideup/tap/spin`)
+- [Spin](https://serversideup.net/open-source/spin/)
 
 ### Getting Started
 
