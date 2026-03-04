@@ -44,8 +44,8 @@ In your fork, open **Settings** → **Secrets and variables** → **Actions**. T
 
 | Name | Value |
 |------|--------|
-| `SHPCR_USERNAME` | Your Self-Host Pro access token |
-| `SHPCR_PASSWORD` | Same access token (use as both username and password) |
+| `SHPCR_USERNAME` | Your Self-Host Pro username (me@example.com) |
+| `SHPCR_PASSWORD` | Your Self-Host Pro access token |
 
 **Variables tab** (second) — for names (not sensitive). Add:
 
